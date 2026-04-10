@@ -1,10 +1,14 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { store } from '@/store'
 import InputNumber from '../components/InputNumber.vue'
 
-function updateMinimumAge(value: unknown) {
-  store.minimumAgeInMonths = Number(value) || 0
-}
+const minimumAgeModel = computed<number | null>({
+  get: () => store.minimumAgeInMonths,
+  set: (value) => {
+    store.minimumAgeInMonths = value
+  },
+})
 </script>
 
 <template>
@@ -16,10 +20,9 @@ function updateMinimumAge(value: unknown) {
     <div>
       <div class="flex items-center gap-2">
         <InputNumber 
-          :model-value="store.minimumAgeInMonths"
+          v-model="minimumAgeModel"
           label="MINIMUM AGE"
           caption="months"
-          @update:model-value="($event) => updateMinimumAge($event)"
         />
       </div>
     </div>

@@ -10,7 +10,7 @@ export function parseDigitsToNumber(value: unknown) {
   const digits = toDigits(value)
 
   if (!digits) {
-    return 0
+    return null
   }
 
   return Number(digits)

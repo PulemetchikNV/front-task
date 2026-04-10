@@ -14,8 +14,8 @@ const props = defineProps<{
     caption?: string
 }>()
 
-const value = defineModel<number>({ 
-    default: 0,
+const value = defineModel<number | null>({ 
+    default: null,
     set(newValue: unknown) {
         return parseDigitsToNumber(newValue)
     }

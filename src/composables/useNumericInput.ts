@@ -1,12 +1,12 @@
-import { computed, ref, watch, type Ref } from 'vue'
-import { formatDigits, parseDigitsToNumber, toDigits } from '@/utils/numericInput'
+import { computed, nextTick, ref, watch, type Ref } from 'vue'
+import { formatDigits, toDigits } from '@/utils/numericInput'
 
 type UseNumericInputOptions = {
   isFocused: Ref<boolean>
   minWidth?: number
 }
 
-export function useNumericInput(value: Ref<number>, options: UseNumericInputOptions) {
+export function useNumericInput(value: Ref<number | null>, options: UseNumericInputOptions) {
   const { isFocused, minWidth = 72 } = options
   const displayValue = ref('')
 
@@ -31,7 +31,7 @@ export function useNumericInput(value: Ref<number>, options: UseNumericInputOpti
     const digits = toDigits(newValue)
 
     displayValue.value = formatDigits(digits)
-    value.value = digits === '' ? 0 : Number(digits)
+    value.value = digits === '' ? null : Number(digits)
   }
 
   function handleBeforeInput(event: InputEvent) {
@@ -45,12 +45,39 @@ export function useNumericInput(value: Ref<number>, options: UseNumericInputOpti
   }
 
   function handlePaste(event: ClipboardEvent) {
-    const pastedText = event.clipboardData?.getData('text') ?? ''
+    const input = event.target as HTMLInputElement | null
 
-    if (/\D/.test(pastedText)) {
-      event.preventDefault()
-      updateValue(pastedText)
+    if (!input) {
+      return
     }
+
+    const pastedText = event.clipboardData?.getData('text') ?? ''
+    const isDigitsOnly = /^\d+$/.test(pastedText)
+
+    if (!isDigitsOnly) {
+      event.preventDefault()
+      return
+    }
+
+    event.preventDefault()
+
+    const selectionStart = input.selectionStart ?? input.value.length
+    const selectionEnd = input.selectionEnd ?? selectionStart
+    const leftDigits = toDigits(input.value.slice(0, selectionStart))
+    const rightDigits = toDigits(input.value.slice(selectionEnd))
+    const nextDigits = `${leftDigits}${pastedText}${rightDigits}`
+    const caretDigitIndex = leftDigits.length + pastedText.length
+
+    updateValue(nextDigits)
+
+    void nextTick(() => {
+      const nextCaretPosition = getCaretPositionFromDigitIndex(
+        formatDigits(nextDigits),
+        caretDigitIndex,
+      )
+
+      input.setSelectionRange(nextCaretPosition, nextCaretPosition)
+    })
   }
 
   function syncDisplayValue() {
@@ -64,6 +91,27 @@ export function useNumericInput(value: Ref<number>, options: UseNumericInputOpti
     handleBeforeInput,
     handlePaste,
     syncDisplayValue,
-    parseDigitsToNumber,
   }
+}
+
+function getCaretPositionFromDigitIndex(formattedValue: string, digitIndex: number) {
+  if (digitIndex <= 0) {
+    return 0
+  }
+
+  let seenDigits = 0
+
+  for (let i = 0; i < formattedValue.length; i += 1) {
+    const character = formattedValue[i]
+
+    if (character && /\d/.test(character)) {
+      seenDigits += 1
+    }
+
+    if (seenDigits === digitIndex) {
+      return i + 1
+    }
+  }
+
+  return formattedValue.length
 }

@@ -5,7 +5,7 @@ import { store } from '@/store'
 const peopleWithYears = computed(() => {
   return store.people.map((person) => ({
     ...person,
-    ageInYears: Math.floor(person.ageInHours / 8760),
+    ageInYears: Math.floor((person.ageInHours ?? 0) / 8760),
   }))
 })
 </script>

@@ -3,12 +3,12 @@ import { reactive } from 'vue'
 export interface Person {
   id: number
   name: string
-  ageInHours: number
+  ageInHours: number | null
 }
 
 export interface AppState {
   people: Person[]
-  minimumAgeInMonths: number
+  minimumAgeInMonths: number | null
 }
 
 export const store = reactive<AppState>({

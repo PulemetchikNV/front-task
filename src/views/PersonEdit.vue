@@ -11,11 +11,14 @@ const person = computed(() => {
   return store.people.find((p) => p.id === id)
 })
 
-function updateAge(value: string) {
-  if (person.value) {
-    person.value.ageInHours = Number(value) || 0
-  }
-}
+const ageInHoursModel = computed<number | null>({
+  get: () => person.value?.ageInHours ?? null,
+  set: (value) => {
+    if (person.value) {
+      person.value.ageInHours = value
+    }
+  },
+})
 </script>
 
 <template>
@@ -23,7 +26,7 @@ function updateAge(value: string) {
     <router-link to="/" class="text-violet-600 hover:underline text-sm">&larr; Back</router-link>
 
     <InputNumber 
-      v-model="person.ageInHours"
+      v-model="ageInHoursModel"
       :label="`${person.name.toUpperCase()} IS`"
       caption="hours old"
       photoSrc="/img.jpg"
