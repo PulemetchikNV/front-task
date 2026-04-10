@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import InputNumber from '../components/InputNumber.vue'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { store } from '@/store'
@@ -44,6 +45,7 @@ function updateAge(value: string) {
         </div>
       </div>
     </div>
+    <InputNumber v-model="person.ageInHours" label="CHARLIE IS" photoSrc="/img.png"></InputNumber>
   </div>
 
   <div v-else>
