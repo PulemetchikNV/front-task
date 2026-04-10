@@ -29,7 +29,7 @@ const displayValue = ref('')
 const isFocused = ref(false)
 const inputWidth = computed(() => {
     const characters = Math.max(displayValue.value.length, 1)
-    return `${Math.max(72, characters * 12 + 16)}px`
+    return `${Math.max(72, characters * 11 + 24)}px`
 })
 
 watch(
@@ -76,13 +76,14 @@ function handleFocusOut() {
             :src="(photoSrc)"
             :alt="label"
             class="w-[80px] h-[80px] rounded-full object-cover p-[4px] box-content"
-            :class="isFocused ? 'outline-2 outline-violet-500' : ''"
+            :class="isFocused ? 'outline-1 outline-violet-500' : ''"
         />
         <div class="flex flex-col">
-            <label 
+            <label
+                v-if="label"
                 :for="id"
-                :class="isFocused ? 'text-violet-700' : 'text-gray-700'"
-                class="font-label block mb-3"
+                :class="isFocused ? 'text-violet-700' : 'text-[#1E0E4C]'"
+                class="font-label block mb-[10px]"
             > 
                 {{ label }}
             </label>
@@ -91,12 +92,13 @@ function handleFocusOut() {
                     :id="id"
                     :value="displayValue"
                     :style="{ width: inputWidth }"
-                    class="border-2 border-gray-300 focus:border-violet-600 rounded px-2 py-1 text-lg outline-none"
+                    :class="isFocused ? 'text-violet-950' : 'text-[#CFCADF]'"
+                    class="font-caption cursor-pointer box-border h-[44px] rounded-[6px] border border-violet-200 bg-white px-[8px] pr-[16px] py-[8px] text-[18px] leading-[100%] font-normal caret-violet-500 outline-none focus:border-[1.5px] focus:border-violet-500"
                     @input="updateValue(($event.target as HTMLInputElement).value)"
                     @focusin="handleFocusIn"
                     @focusout="handleFocusOut"
                 />
-                <span class="font-caption text-gray-600">{{ caption }}</span>
+                <span class="font-caption leading-[100%] text-[#1E0E4C]">{{ caption }}</span>
             </div>
         </div>
     </div>
