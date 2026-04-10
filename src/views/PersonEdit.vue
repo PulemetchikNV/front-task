@@ -26,7 +26,7 @@ function updateAge(value: string) {
       v-model="person.ageInHours"
       :label="`${person.name.toUpperCase()} IS`"
       caption="hours old"
-      photoSrc="/img.png"
+      photoSrc="/img.jpg"
     ></InputNumber>
   </div>
 

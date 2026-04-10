@@ -22,7 +22,7 @@ const peopleWithYears = computed(() => {
         class="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-violet-500"
       >
         <img
-          src="/img.png"
+          src="/img.jpg"
           :alt="person.name"
           class="w-10 h-10 rounded-full border-2 border-violet-500 object-cover"
         />
