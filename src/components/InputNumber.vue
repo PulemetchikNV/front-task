@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { computed, ref, useId, watch } from 'vue'
+import { useId } from 'vue'
+import { useFocusState } from '@/composables/useFocusState'
+import { useNumericInput } from '@/composables/useNumericInput'
+import { parseDigitsToNumber } from '@/utils/numericInput'
 
 defineOptions({
     name: 'InputNumber',
@@ -14,58 +17,24 @@ const props = defineProps<{
 const value = defineModel<number>({ 
     default: 0,
     set(newValue: unknown) {
-        const digits = toDigits(newValue)
-
-        if (!digits) {
-            return 0
-        }
-
-        return Number(digits)
+        return parseDigitsToNumber(newValue)
     }
 })
 
 const id = useId()
-const displayValue = ref('')
-const isFocused = ref(false)
-const inputWidth = computed(() => {
-    const characters = Math.max(displayValue.value.length, 1)
-    return `${Math.max(72, characters * 11 + 24)}px`
-})
-
-watch(
-    value,
-    (newValue) => {
-        if (isFocused.value) {
-            return
-        }
-
-        displayValue.value = formatDigits(toDigits(newValue))
-    },
-    { immediate: true },
-)
-
-function toDigits(newValue: unknown) {
-    return String(newValue ?? '').replace(/\D/g, '')
-}
-
-function formatDigits(digits: string) {
-    return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
-}
-
-function updateValue(newValue: unknown) {
-    const digits = toDigits(newValue)
-
-    displayValue.value = formatDigits(digits)
-    value.value = digits === '' ? 0 : Number(digits)
-}
-
-function handleFocusIn() {
-    isFocused.value = true
-}
+const { isFocused, handleFocusIn, handleFocusOut: clearFocus } = useFocusState()
+const {
+    displayValue,
+    inputWidth,
+    updateValue,
+    handleBeforeInput,
+    handlePaste,
+    syncDisplayValue,
+} = useNumericInput(value, { isFocused })
 
 function handleFocusOut() {
-    isFocused.value = false
-    displayValue.value = formatDigits(toDigits(value.value))
+    clearFocus()
+    syncDisplayValue()
 }
 </script>
 
@@ -92,9 +61,12 @@ function handleFocusOut() {
                     :id="id"
                     :value="displayValue"
                     :style="{ width: inputWidth }"
+                    inputmode="numeric"
                     :class="isFocused ? 'text-violet-950' : 'text-[#CFCADF]'"
                     class="font-caption cursor-pointer box-border h-[44px] rounded-[6px] border border-violet-200 bg-white px-[8px] pr-[16px] py-[8px] text-[18px] leading-[100%] font-normal caret-violet-500 outline-none focus:border-[1.5px] focus:border-violet-500"
+                    @beforeinput="handleBeforeInput"
                     @input="updateValue(($event.target as HTMLInputElement).value)"
+                    @paste="handlePaste"
                     @focusin="handleFocusIn"
                     @focusout="handleFocusOut"
                 />
